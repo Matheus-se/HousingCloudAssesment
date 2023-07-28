@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model Address {
+    id        String      @id @default(cuid())
+    country   String
+    state     String
+    city      String
+    street    String
+    number    String
+    zip       String
+    Campus    Campus[]
+    HouseUnit HouseUnit[]
+
+    @@map("addresses")
+}
+
+model Coordinate {
+    id        String      @id @default(cuid())
+    x         Float
+    y         Float
+    Campus    Campus[]
+    HouseUnit HouseUnit[]
+
+    @@map("coordinates")
+}
+
+model Campus {
+    id           String     @id @default(cuid())
+    name         String
+    addressId    String
+    address      Address    @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    coordinateId String
+    coordinate   Coordinate @relation(fields: [coordinateId], references: [id], onDelete: Cascade)
+
+    @@map("campus")
+}
+
+model Interest {
+    id          String     @id @default(cuid())
+    name        String
+    email       String
+    HouseUnit   HouseUnit? @relation(fields: [houseUnitId], references: [id], onDelete: Cascade)
+    houseUnitId String?
+
+    @@map("interests")
+}
+
+model HouseUnit {
+    id           String     @id @default(cuid())
+    name         String
+    description  String     @default("No description provided")
+    price        Float
+    bedrooms     Int
+    addressId    String
+    address      Address    @relation(fields: [addressId], references: [id], onDelete: Cascade)
+    coordinateId String
+    coordinate   Coordinate @relation(fields: [coordinateId], references: [id], onDelete: Cascade)
+    interests    Interest[]
+
+    @@map("houseUnits")
+}
